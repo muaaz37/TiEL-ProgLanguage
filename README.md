@@ -1,46 +1,44 @@
 # TiEL-ProgLanguage
 
 TiEL Interpreter is an educational Java project for the Tiny Educational Language
-(TiEL), used in compiler and language courses at THM Gießen.
+(TiEL), used in compiler and language courses at THM Giessen.
 
-Bei TiEL (Tiny Educational Language) handelt es sich um eine rudimentäre
-Programmiersprache, die in der Veranstaltung "Automaten, Sprachen und Compiler" am
-Fachbereich MNI der THM Gießen verwendet wird. Sie unterstützt Funktionen, Variablen,
-mathematische Ausdrücke und grundlegende Kontrollflussanweisungen. Beispiels für
-TiEL-Programme finden sich im Unterordner `examples`.
+TiEL (Tiny Educational Language) is a rudimentary programming language used in the
+"Automata, Languages and Compilers" course at the MNI department of THM Giessen. It
+supports functions, variables, mathematical expressions, and basic control flow
+statements. Examples of TiEL programs can be found in the `examples` subfolder.
 
-## Entwicklungs-Setup
+## Development Setup
 
-Für die Arbeit mit diesem Projekt wird die Verwendung von IntelliJ IDEA empfohlen. Die
-folgenden Schritte beschreiben, wie das Projekt aufgesetzt werden kann. Das Projekt
-benötigt Java 25.
+It is recommended to use IntelliJ IDEA when working with this project. The following
+steps describe how the project can be set up. The project requires Java 25.
 
-1. Laden Sie dieses Projekt aus dem Moodle-Kurs herunter (bereits geschehen).
-2. Öffnen Sie das Projekt in IntelliJ (`File → Open`). Das Projekt sollte automatisch
-   erkannt und die benötigte Java-Version installiert werden. Falls IntellIJ nachfragt,
-   vertrauen Sie dem Projekt.
-3. Wählen Sie die Run-Konfiguration `TiEL` (obere rechte Ecke des Fensters).
-4. Drücken Sie das kleine grüne Dreieck neben der Run-Configuration, um das Projekt
-   auszuführen.
+1. Download this project from the Moodle course (already done).
+2. Open the project in IntelliJ (`File -> Open`). The project should be detected
+   automatically and the required Java version should be installed. If IntelliJ asks,
+   trust the project.
+3. Select the `TiEL` run configuration (top right corner of the window).
+4. Press the small green triangle next to the run configuration to execute the
+   project.
 
-Standardmäßig wird die Datei `examples/hello_world.tiel` als Eingabe für den
-Interpreter verwendet. Durch Anpassung der Run-Konfiguration kann die auszuführende
-Datei angepasst werden.
+By default, the file `examples/hello_world.tiel` is used as input for the
+interpreter. The file to be executed can be changed by adjusting the run
+configuration.
 
-## Erstellen einer portablen JAR-Datei
+## Creating a Portable JAR File
 
-Das Projekt erlaubt das Erstellen einer portablen JAR-Datei mithilfe des
-[Shadow-Plugins](https://gradleup.com/shadow/) für Gradle. Die folgenden Schritte
-beschreiben, wie eine solche Datei erzeugt werden kann:
+The project allows creating a portable JAR file using the
+[Shadow Plugin](https://gradleup.com/shadow/) for Gradle. The following steps
+describe how such a file can be generated:
 
-1. Öffnen Sie das Gradle-Menü in IntelliJ.
-2. Öffnen Sie `tiel-land/Tasks/shadow`.
-3. Führen Sie `shadowJar` aus.
+1. Open the Gradle menu in IntelliJ.
+2. Open `tiel-land/Tasks/shadow`.
+3. Run `shadowJar`.
 
-Sie finden die erzeugte JAR-Datei im Ordner `build/libs/` unter dem Namen
+You can find the generated JAR file in the `build/libs/` folder under the name
 `tiel-1.0-SNAPSHOT-all.jar`.
 
-## Verwendung des CLIs (d.h., der portablen JAR-Datei)
+## Using the CLI (i.e., the Portable JAR File)
 
 ```text
 Usage: tiel [-hV] [--ast] [--tokens] <input>
@@ -51,4 +49,4 @@ Usage: tiel [-hV] [--ast] [--tokens] <input>
   -V, --version   Print version information and exit.
 ```
 
-Beispiel: `java -jar tiel-1.0-SNAPSHOT-all.jar --help`
+Example: `java -jar tiel-1.0-SNAPSHOT-all.jar --help`
