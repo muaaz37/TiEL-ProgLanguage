@@ -1,0 +1,84 @@
+// TiEL playground
+// Diese Datei ist zum Ausprobieren gedacht.
+// Für den Blick hinter die Kulissen:
+//   --tokens  zeigt die Scanner-Ausgabe
+//   --ast     zeigt die Parser-/AST-Ausgabe
+//   Für AST und Tokens sollen am besten einzelne Abschnitte isoliert ausprobieren werden
+
+print("playground:start");
+
+print("section 1: literals");
+print(123);
+print(12.5);
+print("hello");
+print(true);
+print(false);
+print(nil);
+
+print("section 2: arithmetic");
+print(1 + 2);
+print(1 + 2 * 3);
+print((1 + 2) * 3);
+print(10 / 2 - 1);
+print(-5);
+
+print("section 3: comparison and logic");
+print(1 < 2);
+print(2 == 2);
+print(2 != 3);
+print(true and false);
+print(false or true);
+print(not false);
+
+print("section 4: variables and assignment");
+var x = 5;
+print(x);
+x = x + 2;
+print(x);
+
+print("section 5: scope");
+var name = "outside";
+{
+    var name = "inside";
+    print(name);
+}
+print(name);
+
+print("section 6: if else");
+if x > 5 {
+    print("x is big");
+} else {
+    print("x is small");
+}
+
+print("section 7: while");
+var i = 0;
+while i < 3 {
+    print(i);
+    i = i + 1;
+}
+
+print("section 8: function");
+fun add(a, b) {
+    return a + b;
+}
+print(add(4, 5));
+
+print("section 9: closure");
+fun makeAdder(a) {
+    fun addInner(b) {
+        return a + b;
+    }
+    return addInner;
+}
+var addTen = makeAdder(10);
+print(addTen(3));
+
+print("section 10: assignment expression");
+var left = 1;
+var right = 2;
+print(left = right = 9);
+print(left);
+print(right);
+
+print("playground:end");
