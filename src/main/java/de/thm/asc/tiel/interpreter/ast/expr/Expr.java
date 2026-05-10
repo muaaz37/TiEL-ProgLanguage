@@ -4,7 +4,7 @@ import de.thm.asc.tiel.interpreter.ast.Positionable;
 import de.thm.asc.tiel.interpreter.lexical.Token;
 
 public sealed abstract class Expr implements Positionable<Expr> permits AssignExpr, BinaryExpr, CallExpr, LiteralExpr,
-        LogicalExpr, UnaryExpr, VariableExpr {
+        LogicalExpr, UnaryExpr, VariableExpr, ArrayLiteralExpr {
 
     private Token.Position position;
 
