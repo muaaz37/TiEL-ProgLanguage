@@ -1,0 +1,14 @@
+// Kleine Datei für den Blick auf Tokens, AST, Binder und Ausführung.
+// Besonders geeignet mit:
+//   --tokens
+//   --ast
+
+var x = 1 + 2 * 3;
+print(x);
+
+{
+    var x = 99;
+    print(x);
+}
+
+print(x);
