@@ -443,6 +443,26 @@ public class Parser {
             return expr;
         }
 
+        // When a left square bracket appears, it means for parser, array literal
+        if(match(LEFT_SQUARE_BRACKET)) {
+            // Save the position where the array starts
+            var position = previous().position();
+            // create list of elements which later contains "expressions"
+            var elements = new ArrayList<Expr>();
+            // Check, (not consume!) if the Array is not empty or the right bracket not appears
+            if(!check(RIGHT_SQUARE_BRACKET)){
+                do {
+                    // Add expression into the elements list
+                    elements.add(expression());
+                    // As long as we read comma
+                }while(match(COMMA));
+            }
+            // Demand closure of array
+            consume(RIGHT_SQUARE_BRACKET, "Expected ']' after array literal");
+            // return expression list
+            return new ArrayLiteralExpr(elements).withPosition(position);
+        }
+
         throw parsingErrorWithCurrentToken("Expected expression", peek().position());
     }
 
