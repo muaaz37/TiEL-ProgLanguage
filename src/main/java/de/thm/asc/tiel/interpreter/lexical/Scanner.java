@@ -78,8 +78,18 @@ public class Scanner {
             start = current;
             nextToken();
         }
+        // Add tokenname, tokenvalue and position in file
+        // Example: var x=99;
+        /*
+        TOKEN(VAR, var, null) @ line 10, column 5
+        TOKEN(IDENTIFIER, x, x) @ line 10, column 9
+        TOKEN(EQUAL, =, null) @ line 10, column 11
+        TOKEN(NUMBER, 99, 99.0) @ line 10, column 13
+        TOKEN(SEMICOLON, ;, null) @ line 10, column 15
+*/
         tokens.add(new Token(EOF, "", null, new Token.Position(line, column + 1)));
         //>>
+        // return tokenlist
         return tokens;
     }
 
@@ -93,6 +103,8 @@ public class Scanner {
             case ')' -> addToken(RIGHT_PAREN);
             case '{' -> addToken(LEFT_BRACE);
             case '}' -> addToken(RIGHT_BRACE);
+            case '[' -> addToken(LEFT_SQUARE_BRACKET);
+            case ']' -> addToken(RIGHT_SQUARE_BRACKET);
             case ';' -> addToken(SEMICOLON);
             case ',' -> addToken(COMMA);
             case '-' -> addToken(MINUS);
