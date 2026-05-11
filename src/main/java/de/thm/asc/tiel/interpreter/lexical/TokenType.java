@@ -13,6 +13,8 @@ public enum TokenType {
     RIGHT_PAREN,    // )
     LEFT_BRACE,     // {
     RIGHT_BRACE,    // }
+    LEFT_SQUARE_BRACKET, // [
+    RIGHT_SQUARE_BRACKET, // ]
     COMMA,          // ,
     PLUS,           // +
     MINUS,          // -

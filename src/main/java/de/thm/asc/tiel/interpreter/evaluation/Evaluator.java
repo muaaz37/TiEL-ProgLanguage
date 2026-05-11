@@ -181,6 +181,18 @@ public class Evaluator {
                 };
             }
             case VariableExpr variableExpr -> lookupVariable(variableExpr.name, variableExpr);
+            case ArrayLiteralExpr arrayLiteralExpr -> {
+                // This list will hold the evaluated runtime values of the array elements.
+                var values = new ArrayList<TiELValue>();
+
+                // Evaluate each element expression one by one and store its result.
+                for(var element: arrayLiteralExpr.elements){
+                    values.add(evaluate(element));
+                }
+
+                // build the final runtime array values
+                yield new TiELValue.TArray(values);
+            }
         };
     }
 

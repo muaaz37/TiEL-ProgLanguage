@@ -315,6 +315,18 @@ public class Binder {
     }
 
     /**
+     * Resolves the elements inside an array literal.
+     *
+     * @param expr Array literal expression.
+     */
+    private void resolveArrayLiteralExpr(ArrayLiteralExpr expr) {
+        // resolve every expression inside Array
+        for(var element : expr.elements) {
+            resolve(element);
+        }
+    }
+
+    /**
      * Dispatches expression resolution based on concrete expression type.
      *
      * @param expr Expression to resolve.
@@ -329,6 +341,7 @@ public class Binder {
             case LogicalExpr logicalExpr -> resolveLogicalExpr(logicalExpr);
             case UnaryExpr unaryExpr -> resolveUnaryExpr(unaryExpr);
             case VariableExpr variableExpr -> resolveVariableExpr(variableExpr);
+            case ArrayLiteralExpr arrayLiteralExpr -> resolveArrayLiteralExpr(arrayLiteralExpr);
         }
     }
 }

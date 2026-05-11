@@ -6,7 +6,8 @@
 //   Für AST und Tokens sollen am besten einzelne Abschnitte isoliert ausprobieren werden
 
 print("playground:start");
-
+var a= [1, 2];
+print(a);
 print("section 1: literals");
 print(123);
 print(12.5);
@@ -29,17 +30,20 @@ print(2 != 3);
 print(true and false);
 print(false or true);
 print(not false);
+print(not true);
+print(!true);
 
 print("section 4: variables and assignment");
 var x = 5;
 print(x);
+// print("Value to variable x is:"+x);
 x = x + 2;
 print(x);
 
-print("section 5: scope");
+print("section 5: scope of variables");
 var name = "outside";
 {
-    var name = "inside";
+    var name = "inside"; // only defined inside brackets
     print(name);
 }
 print(name);
@@ -62,9 +66,9 @@ print("section 8: function");
 fun add(a, b) {
     return a + b;
 }
-print(add(4, 5));
+print(add(4,6));
 
-print("section 9: closure");
+print("section 9: closure: returning function as result");
 fun makeAdder(a) {
     fun addInner(b) {
         return a + b;
@@ -72,11 +76,14 @@ fun makeAdder(a) {
     return addInner;
 }
 var addTen = makeAdder(10);
-print(addTen(3));
+print(addTen(4));
+var addtwenty = makeAdder(20);
+print(addtwenty(7));
 
 print("section 10: assignment expression");
 var left = 1;
 var right = 2;
+// directly initialising two variables
 print(left = right = 9);
 print(left);
 print(right);

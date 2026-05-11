@@ -31,6 +31,8 @@ public class AstPrinter {
             case UnaryExpr unaryExpr ->
                     sExpr(UnaryExpr.class.getSimpleName(), unaryExpr.operator.toString(), unaryExpr.right);
             case VariableExpr variableExpr -> sExpr(VariableExpr.class.getSimpleName(), variableExpr.name);
+            // Print the node name and recursively print the array elements.
+            case ArrayLiteralExpr arrayLiteralExpr -> sExpr(ArrayLiteralExpr.class.getSimpleName(),arrayLiteralExpr.elements);
         };
     }
 
