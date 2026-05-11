@@ -6,7 +6,8 @@
 //   Für AST und Tokens sollen am besten einzelne Abschnitte isoliert ausprobieren werden
 
 print("playground:start");
-
+var a= [1, 2];
+print(a);
 print("section 1: literals");
 print(123);
 print(12.5);
