@@ -404,7 +404,11 @@ public class Parser {
         while (true) {
             if (match(LEFT_PAREN)) {
                 expr = finishCall(expr);
-            }  else {
+            } else if (match(LEFT_SQUARE_BRACKET)) {
+                var index = expression();
+                consume(RIGHT_SQUARE_BRACKET, "Expected ']' after index expression");
+                expr = new IndexExpr(expr, index).withPosition(expr.getPosition());
+            } else {
                 break;
             }
         }
