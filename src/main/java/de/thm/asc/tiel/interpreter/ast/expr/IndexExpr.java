@@ -12,8 +12,8 @@ arr[i + 1]
 // Which index is used for access? expression which results to index
 public final class IndexExpr extends Expr{
 
-    private final Expr target;
-    private final Expr index;
+    public final Expr target;
+    public final Expr index;
     public IndexExpr(Expr target, Expr index) {
         this.index = index;
         this.target = target;
