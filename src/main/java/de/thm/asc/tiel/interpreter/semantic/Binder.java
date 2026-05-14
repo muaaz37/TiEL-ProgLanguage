@@ -327,6 +327,16 @@ public class Binder {
     }
 
     /**
+     * Resolves the target and index of an index access expression.
+     *
+     * @param expr Index access expression.
+     */
+    private void resolveIndexExpr(IndexExpr expr) {
+        resolve(expr.target);
+        resolve(expr.index);
+    }
+
+    /**
      * Dispatches expression resolution based on concrete expression type.
      *
      * @param expr Expression to resolve.
@@ -342,6 +352,7 @@ public class Binder {
             case UnaryExpr unaryExpr -> resolveUnaryExpr(unaryExpr);
             case VariableExpr variableExpr -> resolveVariableExpr(variableExpr);
             case ArrayLiteralExpr arrayLiteralExpr -> resolveArrayLiteralExpr(arrayLiteralExpr);
+            case IndexExpr indexExpr -> resolveIndexExpr(indexExpr);
         }
     }
 }
