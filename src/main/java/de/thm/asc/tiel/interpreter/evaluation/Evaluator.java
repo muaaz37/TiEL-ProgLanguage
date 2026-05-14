@@ -193,6 +193,43 @@ public class Evaluator {
                 // build the final runtime array values
                 yield new TiELValue.TArray(values);
             }
+
+            case IndexExpr indexExpr -> {
+                // Evaluate what is being indexed, for example `a` in `a[0]`.
+                var target = evaluate(indexExpr.target);
+
+                // Evaluate the index expression, for example `0` in `a[0]`.
+                var index = evaluate(indexExpr.index);
+
+                // Only arrays can be accessed with [index].
+                if (!(target instanceof TiELValue.TArray array)) {
+                    throw new RuntimeError("Can only index arrays.", indexExpr.getPosition());
+                }
+
+                // The index must evaluate to a number.
+                if (!(index instanceof TiELValue.TNumber number)) {
+                    throw new RuntimeError("Array index must be a number.", indexExpr.getPosition());
+                }
+
+                // Read the numeric index value.
+                var rawIndex = number.value();
+
+                // Array indices must be whole numbers like 0, 1, 2.
+                if (rawIndex % 1 != 0) {
+                    throw new RuntimeError("Array index must be an integer.", indexExpr.getPosition());
+                }
+
+                // Convert the valid numeric index to an int for list access.
+                var i = (int) rawIndex;
+
+                // Reject negative indices and indices beyond the array size.
+                if (i < 0 || i >= array.value().size()) {
+                    throw new RuntimeError("Array index out of bounds.", indexExpr.getPosition());
+                }
+
+                // Return the element stored at the requested position.
+                yield array.value().get(i);
+            }
         };
     }
 
