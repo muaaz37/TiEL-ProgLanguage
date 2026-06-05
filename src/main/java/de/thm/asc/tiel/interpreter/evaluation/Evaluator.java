@@ -78,8 +78,11 @@ public class Evaluator {
     private TiELValue evaluate(Expr expr) {
         return switch (expr) {
             case AssignExpr assignExpr -> {
+                // Evaluate the right side first.
+                // This is the value that will be assigned.
                 var value = evaluate(assignExpr.value);
 
+                // Normal variable assignment, for example: x = 5
                 if (assignExpr.target instanceof VariableExpr v) {
                     var distance = locals.get(expr);
                     if (distance != null) {
@@ -87,12 +90,23 @@ public class Evaluator {
                     } else {
                         globals.assign(v.name, value, assignExpr.getPosition());
                     }
+
+                    // Array index assignment, for example: a[1] = 99
+                } else if (assignExpr.target instanceof IndexExpr indexExpr) {
+                    // Resolve the array target and checked integer index.
+                    var indexed = resolveIndexedTarget(indexExpr);
+
+                    // Replace the old element at that position with the new value.
+                    indexed.array().value().set(indexed.index(), value);
                 } else {
                     throw new IllegalStateException("Unexpected assignment target type");
                 }
 
+                // In TiEL, assignment is itself an expression,
+                // so it returns the assigned value.
                 yield value;
             }
+
             case BinaryExpr binaryExpr -> {
                 var left = evaluate(binaryExpr.left);
                 var right = evaluate(binaryExpr.right);
@@ -195,40 +209,11 @@ public class Evaluator {
             }
 
             case IndexExpr indexExpr -> {
-                // Evaluate what is being indexed, for example `a` in `a[0]`.
-                var target = evaluate(indexExpr.target);
+                // Resolve the array target and checked integer index.
+                var indexed = resolveIndexedTarget(indexExpr);
 
-                // Evaluate the index expression, for example `0` in `a[0]`.
-                var index = evaluate(indexExpr.index);
-
-                // Only arrays can be accessed with [index].
-                if (!(target instanceof TiELValue.TArray array)) {
-                    throw new RuntimeError("Can only index arrays.", indexExpr.getPosition());
-                }
-
-                // The index must evaluate to a number.
-                if (!(index instanceof TiELValue.TNumber number)) {
-                    throw new RuntimeError("Array index must be a number.", indexExpr.getPosition());
-                }
-
-                // Read the numeric index value.
-                var rawIndex = number.value();
-
-                // Array indices must be whole numbers like 0, 1, 2.
-                if (rawIndex % 1 != 0) {
-                    throw new RuntimeError("Array index must be an integer.", indexExpr.getPosition());
-                }
-
-                // Convert the valid numeric index to an int for list access.
-                var i = (int) rawIndex;
-
-                // Reject negative indices and indices beyond the array size.
-                if (i < 0 || i >= array.value().size()) {
-                    throw new RuntimeError("Array index out of bounds.", indexExpr.getPosition());
-                }
-
-                // Return the element stored at the requested position.
-                yield array.value().get(i);
+                // Return the element stored at that array position.
+                yield indexed.array().value().get(indexed.index());
             }
         };
     }
@@ -343,5 +328,46 @@ public class Evaluator {
      */
     private static TiELValue wrap(boolean bool) {
         return new TiELValue.TBoolean(bool);
+    }
+
+    private record IndexedTarget(TiELValue.TArray array, int index) {}
+
+    /**
+     * Resolves an array target and its index for index access or index assignment.
+     *
+     * @param expr The index access expression.
+     * @return The resolved array and the validated integer index.
+     */
+    private IndexedTarget resolveIndexedTarget(IndexExpr expr) {
+        // Evaluate the array expression and the index expression.
+        var target = evaluate(expr.target);
+        var index = evaluate(expr.index);
+
+        // Only arrays can be accessed with [index].
+        if (!(target instanceof TiELValue.TArray array)) {
+            throw new RuntimeError("Can only index arrays.", expr.getPosition());
+        }
+
+        // The index must evaluate to a number.
+        if (!(index instanceof TiELValue.TNumber number)) {
+            throw new RuntimeError("Array index must be a number.", expr.getPosition());
+        }
+
+        var rawIndex = number.value();
+
+        // Array indices must be whole numbers.
+        if (rawIndex % 1 != 0) {
+            throw new RuntimeError("Array index must be an integer.", expr.getPosition());
+        }
+
+        var i = (int) rawIndex;
+
+        // Reject invalid positions outside the array.
+        if (i < 0 || i >= array.value().size()) {
+            throw new RuntimeError("Array index out of bounds.", expr.getPosition());
+        }
+
+        // Return both the checked array and the checked index together.
+        return new IndexedTarget(array, i);
     }
 }
