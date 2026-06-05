@@ -250,10 +250,20 @@ public class Binder {
      * @param expr Array literal expression.
      */
     private void resolveAssignExpr(AssignExpr expr) {
+        // First resolve the value on the right side of the assignment.
         resolve(expr.value);
 
+        // If the target is a normal variable like `x = 5`,
+        // resolve it through its variable name.
         if (expr.target instanceof VariableExpr v) {
             resolveLocal(expr, v.name);
+
+            // If the target is an index access like `a[1] = 99`,
+            // resolve the full target expression recursively.
+        } else if (expr.target instanceof IndexExpr) {
+            resolve(expr.target);
+
+            // Fallback for any other target form.
         } else {
             resolve(expr.target);
         }
@@ -327,6 +337,16 @@ public class Binder {
     }
 
     /**
+     * Resolves the target and index of an index access expression.
+     *
+     * @param expr Index access expression.
+     */
+    private void resolveIndexExpr(IndexExpr expr) {
+        resolve(expr.target);
+        resolve(expr.index);
+    }
+
+    /**
      * Dispatches expression resolution based on concrete expression type.
      *
      * @param expr Expression to resolve.
@@ -342,6 +362,7 @@ public class Binder {
             case UnaryExpr unaryExpr -> resolveUnaryExpr(unaryExpr);
             case VariableExpr variableExpr -> resolveVariableExpr(variableExpr);
             case ArrayLiteralExpr arrayLiteralExpr -> resolveArrayLiteralExpr(arrayLiteralExpr);
+            case IndexExpr indexExpr -> resolveIndexExpr(indexExpr);
         }
     }
 }

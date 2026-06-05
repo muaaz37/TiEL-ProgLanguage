@@ -1,14 +1,3 @@
-// TiEL playground: Vorschau auf HA1 Arrays
-//
-// Diese Datei ist absichtlich eine Zukunftsvorschau.
-// Im aktuellen Stand des Interpreters läuft sie noch nicht,
-// weil Arrays erst in HA1 implementiert werden.
-//
-// Wofür sie gut ist:
-// 1. Kleine, überschaubare Beispiele für die spätere Array-Syntax
-// 2. Klarer Vergleich mit stage_01_arrays.tiel
-// 3. Gute Checkliste dafür, was Scanner, Parser, Binder und Evaluator können müssen
-//
 // Beim Implementieren von HA1:
 // - Scanner:   [ und ] als Tokens erkennen
 // - Parser:    Array-Literale, Indexzugriff, Index-Zuweisung parsen

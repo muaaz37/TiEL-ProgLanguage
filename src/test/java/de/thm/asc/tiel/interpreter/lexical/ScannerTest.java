@@ -114,6 +114,50 @@ public class ScannerTest {
         ));
     }
 
+    @Test
+    void scanArrayLiteral() {
+        var tokens = new Scanner("""
+                var a = [1,2];
+                """).scan();
+
+        assertTokenTypes(tokens, List.of(
+                TokenType.VAR,
+                TokenType.IDENTIFIER,
+                TokenType.EQUAL,
+                TokenType.LEFT_SQUARE_BRACKET,
+                TokenType.NUMBER,
+                TokenType.COMMA,
+                TokenType.NUMBER,
+                TokenType.RIGHT_SQUARE_BRACKET,
+                TokenType.SEMICOLON,
+                TokenType.EOF
+        ));
+
+        assertEquals("a",tokens.get(1).value());
+        assertEquals(1.0,tokens.get(4).value());
+        assertEquals(2.0,tokens.get(6).value());
+    }
+
+    @Test
+    void scanArrayIndexAccess() {
+        var tokens = new Scanner("""
+                var x = [1];
+        """).scan();
+        assertTokenTypes(tokens, List.of(
+                TokenType.VAR,
+                TokenType.IDENTIFIER,
+                TokenType.EQUAL,
+                TokenType.LEFT_SQUARE_BRACKET,
+                TokenType.NUMBER,
+                TokenType.RIGHT_SQUARE_BRACKET,
+                TokenType.SEMICOLON,
+                TokenType.EOF
+        ));
+
+        assertEquals("x",tokens.get(1).value());
+        assertEquals(1.0,tokens.get(4).value());
+    }
+
     private static void assertTokenTypes(List<Token> tokens, List<TokenType> expectedTypes) {
         assertEquals(expectedTypes.size(), tokens.size());
 

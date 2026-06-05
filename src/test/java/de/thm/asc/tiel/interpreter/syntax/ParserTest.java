@@ -1,12 +1,6 @@
 package de.thm.asc.tiel.interpreter.syntax;
 
-import de.thm.asc.tiel.interpreter.ast.expr.AssignExpr;
-import de.thm.asc.tiel.interpreter.ast.expr.BinaryExpr;
-import de.thm.asc.tiel.interpreter.ast.expr.CallExpr;
-import de.thm.asc.tiel.interpreter.ast.expr.LiteralExpr;
-import de.thm.asc.tiel.interpreter.ast.expr.LogicalExpr;
-import de.thm.asc.tiel.interpreter.ast.expr.UnaryExpr;
-import de.thm.asc.tiel.interpreter.ast.expr.VariableExpr;
+import de.thm.asc.tiel.interpreter.ast.expr.*;
 import de.thm.asc.tiel.interpreter.ast.stmt.BlockStmt;
 import de.thm.asc.tiel.interpreter.ast.stmt.ExpressionStmt;
 import de.thm.asc.tiel.interpreter.ast.stmt.FunctionDeclStmt;
@@ -102,6 +96,47 @@ public class ParserTest {
                 )
         );
 
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void parsesArrayLiteralVariableDeclaration() {
+        var actual = parse("""
+                 var a= [1,2,3];
+        """);
+
+        var expected = List.of(
+                new VarDeclStmt("a",
+                        new ArrayLiteralExpr(List.of(
+                                number(1),
+                                number(2),
+                                number(3)
+                        ))
+                )
+        );
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void parsesArrayIndexAssignment(){
+        var actual = parse("""
+                a[1] = b[0];
+        """);
+        var expected = List.of(
+                new ExpressionStmt(
+                        new AssignExpr(
+                                new IndexExpr(
+                                        variable("a"),
+                                        number(1)
+                                ),
+                                new  IndexExpr(
+                                        variable("b"),
+                                        number(0)
+                                )
+                        )
+                )
+        );
         assertEquals(expected, actual);
     }
 

@@ -50,7 +50,27 @@ public class BinderTest {
                 """));
     }
 
-    private static void bind(String source) {
+    @Test
+    void acceptsArrayIndexAssignment() {
+        assertDoesNotThrow(() -> bind("""
+                var x = 1;
+                var a= [10,20];
+                a[x]= a[0];
+        """));
+    }
+
+    @Test
+    void  rejectsReadingVariableInOwnArrayInitializer() {
+        var error = assertThrows(RuntimeError.class, () -> bind("""
+            {
+                var a = [a];
+            }
+            """));
+        assertEquals("Can't read local variable in its own initializer.", error.getMessage());
+    }
+
+
+        private static void bind(String source) {
         var ast = new Parser(new Scanner(source).scan()).parse();
         var evaluator = new Evaluator(Globals.initEnv(new java.io.PrintStream(new ByteArrayOutputStream())));
 
