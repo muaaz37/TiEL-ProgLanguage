@@ -224,12 +224,12 @@ public class Parser {
         if (match(EQUAL)) {
             var equals = previous();
             var value = assignment();
-
-            if (expr instanceof VariableExpr) {
+            // Left side can be a variable expr or IndexExpr like a[0] = ..
+            if (expr instanceof VariableExpr || expr instanceof IndexExpr) {
                 return new AssignExpr(expr, value).withPosition(expr.getPosition());
             }
 
-            throw new ParsingError("Expected variable expression left of =", equals.position());
+            throw new ParsingError("Expected variable or index expression left of =", equals.position());
         }
 
         return expr;
