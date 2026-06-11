@@ -21,7 +21,8 @@ public class EvaluatorTest {
                 print(x); print(3 + 4);""");
         assertEquals("""
                 5
-                7""", output);
+                7
+                """, output);
     }
     //>>
 
