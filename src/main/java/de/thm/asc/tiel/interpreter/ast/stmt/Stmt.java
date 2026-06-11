@@ -4,7 +4,7 @@ import de.thm.asc.tiel.interpreter.ast.Positionable;
 import de.thm.asc.tiel.interpreter.lexical.Token;
 
 public sealed abstract class Stmt implements Positionable<Stmt>
-        permits BlockStmt, ExpressionStmt, FunctionDeclStmt, IfStmt, ReturnStmt, VarDeclStmt, WhileStmt {
+        permits BlockStmt, ExpressionStmt, FunctionDeclStmt, IfStmt, ReturnStmt, VarDeclStmt, WhileStmt, ClassDeclStmt {
 
     private Token.Position position;
 
