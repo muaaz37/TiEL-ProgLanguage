@@ -36,6 +36,9 @@ public class AstPrinter {
 
             // Print the node name and recursively print the target and index
             case IndexExpr indexExpr -> sExpr(IndexExpr.class.getSimpleName(), indexExpr.target, indexExpr.index);
+
+            case GetExpr getExpr -> sExpr(GetExpr.class.getSimpleName(), getExpr.object, getExpr.name);
+            case ThisExpr _ -> sExpr(ThisExpr.class.getSimpleName());
         };
     }
 
@@ -67,9 +70,18 @@ public class AstPrinter {
                 if (returnStmt.value == null) yield sExpr(ReturnStmt.class.getSimpleName());
                 yield sExpr(ReturnStmt.class.getSimpleName(), returnStmt.value);
             }
-            case VarDeclStmt varDeclStmt ->
-                    sExpr(VarDeclStmt.class.getSimpleName(), varDeclStmt.name, varDeclStmt.initializer);
+            case VarDeclStmt varDeclStmt -> sExpr(VarDeclStmt.class.getSimpleName(), varDeclStmt.name, varDeclStmt.initializer);
             case WhileStmt whileStmt -> sExpr(WhileStmt.class.getSimpleName(), whileStmt.condition, whileStmt.body);
+
+            case ClassDeclStmt classDeclStmt -> {
+                var methods = classDeclStmt.methods.toArray();
+
+                yield sExpr(
+                        ClassDeclStmt.class.getSimpleName(),
+                        classDeclStmt.name,
+                        sExpr("Methods", methods)
+                );
+            }
         };
     }
 
