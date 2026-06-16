@@ -8,18 +8,10 @@ TiEL (Tiny Educational Language) is a rudimentary programming language used in t
 supports functions, variables, mathematical expressions, and basic control flow
 statements. Examples of TiEL programs can be found in the `examples` subfolder.
 
-## Development Setup
+## Development Information
 
 It is recommended to use IntelliJ IDEA when working with this project. The following
 steps describe how the project can be set up. The project requires Java 25.
-
-1. Download this project from the Moodle course (already done).
-2. Open the project in IntelliJ (`File -> Open`). The project should be detected
-   automatically and the required Java version should be installed. If IntelliJ asks,
-   trust the project.
-3. Select the `TiEL` run configuration (top right corner of the window).
-4. Press the small green triangle next to the run configuration to execute the
-   project.
 
 By default, the file `examples/hello_world.tiel` is used as input for the
 interpreter. The file to be executed can be changed by adjusting the run
