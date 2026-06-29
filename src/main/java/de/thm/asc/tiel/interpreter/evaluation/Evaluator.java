@@ -10,7 +10,7 @@ import java.util.*;
 /**
  * The Evaluator class interprets and executes TiEL language expressions and statements.
  * It maintains an execution environment and supports variable resolution, function calls,
- * and basic control flow operations.
+ * classes, instances, and basic control flow operations.
  */
 public class Evaluator {
 
@@ -73,16 +73,13 @@ public class Evaluator {
      * Evaluates an expression.
      *
      * @param expr The expression to evaluate.
-     * @return The evaluated value-
+     * @return The evaluated value.
      */
     private TiELValue evaluate(Expr expr) {
         return switch (expr) {
             case AssignExpr assignExpr -> {
-                // Evaluate the right side first.
-                // This is the value that will be assigned.
                 var value = evaluate(assignExpr.value);
 
-                // Normal variable assignment, for example: x = 5
                 if (assignExpr.target instanceof VariableExpr v) {
                     var distance = locals.get(expr);
                     if (distance != null) {
@@ -90,20 +87,22 @@ public class Evaluator {
                     } else {
                         globals.assign(v.name, value, assignExpr.getPosition());
                     }
-
-                    // Array index assignment, for example: a[1] = 99
                 } else if (assignExpr.target instanceof IndexExpr indexExpr) {
-                    // Resolve the array target and checked integer index.
                     var indexed = resolveIndexedTarget(indexExpr);
-
-                    // Replace the old element at that position with the new value.
                     indexed.array().value().set(indexed.index(), value);
+                } else if (assignExpr.target instanceof GetExpr getExpr) {
+                    // Get the object value from GetExpr
+                    var object = evaluate(getExpr.object);
+                    // if object instance of Array or String e.g.
+                    if (!(object instanceof TiELInstance instance)) {
+                        throw new RuntimeError("Only instances have fields.", getExpr.getPosition());
+                    }
+
+                    instance.set(getExpr.name, value);
                 } else {
                     throw new IllegalStateException("Unexpected assignment target type");
                 }
 
-                // In TiEL, assignment is itself an expression,
-                // so it returns the assigned value.
                 yield value;
             }
 
@@ -196,25 +195,36 @@ public class Evaluator {
             }
             case VariableExpr variableExpr -> lookupVariable(variableExpr.name, variableExpr);
             case ArrayLiteralExpr arrayLiteralExpr -> {
-                // This list will hold the evaluated runtime values of the array elements.
                 var values = new ArrayList<TiELValue>();
 
-                // Evaluate each element expression one by one and store its result.
-                for(var element: arrayLiteralExpr.elements){
+                for (var element : arrayLiteralExpr.elements) {
                     values.add(evaluate(element));
                 }
 
-                // build the final runtime array values
                 yield new TiELValue.TArray(values);
             }
-
             case IndexExpr indexExpr -> {
-                // Resolve the array target and checked integer index.
                 var indexed = resolveIndexedTarget(indexExpr);
-
-                // Return the element stored at that array position.
                 yield indexed.array().value().get(indexed.index());
             }
+            case GetExpr getExpr -> {
+                var object = evaluate(getExpr.object);
+
+                if (object instanceof TiELInstance instance) {
+                    yield instance.get(getExpr.name, getExpr.getPosition());
+                }
+
+                if (object instanceof TiELValue.TArray array && "length".equals(getExpr.name)) {
+                    yield wrap(array.value().size());
+                }
+
+                if (object instanceof TiELValue.TString string && "length".equals(getExpr.name)) {
+                    yield wrap(string.value().length());
+                }
+
+                throw new RuntimeError("Only instances have properties.", getExpr.getPosition());
+            }
+            case ThisExpr thisExpr -> lookupVariable("this", thisExpr);
         };
     }
 
@@ -239,6 +249,24 @@ public class Evaluator {
         switch (stmt) {
             case BlockStmt blockStmt ->
                     executeStatementsInEnvironment(blockStmt.statements, new Environment(environment));
+            case ClassDeclStmt classDeclStmt -> {
+                // Enter the class name in environemnt
+                environment.define(classDeclStmt.name, TiELValue.NIL);
+                // Create Hashmap for methods
+                var methods = new HashMap<String, TiELFunction>();
+                for (var method : classDeclStmt.methods) {
+                    // Convert every method in runtime Tiel-function
+                    var function = new TiELFunction(method, environment, method.name.equals(classDeclStmt.name));
+                    // Add method names in map
+                    methods.put(method.name, function);
+                }
+                // Create the actual class with all methods
+                environment.assign(
+                        classDeclStmt.name,
+                        new TiELClass(classDeclStmt.name, methods),
+                        classDeclStmt.getPosition()
+                );
+            }
             case ExpressionStmt expressionStmt -> evaluate(expressionStmt.expression);
             //<< 09-expr, declaration, Methode execute()
             case FunctionDeclStmt functionDeclStmt -> {
@@ -339,35 +367,29 @@ public class Evaluator {
      * @return The resolved array and the validated integer index.
      */
     private IndexedTarget resolveIndexedTarget(IndexExpr expr) {
-        // Evaluate the array expression and the index expression.
         var target = evaluate(expr.target);
         var index = evaluate(expr.index);
 
-        // Only arrays can be accessed with [index].
         if (!(target instanceof TiELValue.TArray array)) {
             throw new RuntimeError("Can only index arrays.", expr.getPosition());
         }
 
-        // The index must evaluate to a number.
         if (!(index instanceof TiELValue.TNumber number)) {
             throw new RuntimeError("Array index must be a number.", expr.getPosition());
         }
 
         var rawIndex = number.value();
 
-        // Array indices must be whole numbers.
         if (rawIndex % 1 != 0) {
             throw new RuntimeError("Array index must be an integer.", expr.getPosition());
         }
 
         var i = (int) rawIndex;
 
-        // Reject invalid positions outside the array.
         if (i < 0 || i >= array.value().size()) {
             throw new RuntimeError("Array index out of bounds.", expr.getPosition());
         }
 
-        // Return both the checked array and the checked index together.
         return new IndexedTarget(array, i);
     }
 }
