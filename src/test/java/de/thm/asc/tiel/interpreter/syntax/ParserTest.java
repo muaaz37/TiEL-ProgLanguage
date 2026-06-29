@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class ParserTest {
 
@@ -138,6 +139,34 @@ public class ParserTest {
                 )
         );
         assertEquals(expected, actual);
+    }
+
+    @Test
+    void parsesClassDeclarationWithMethods() {
+        assertDoesNotThrow(() -> parse("""
+                class Person {
+                    fun Person(name) {
+                        this.name = name;
+                    }
+                    fun getName() {
+                        return this.name;
+                    }
+                }
+                """));
+    }
+
+    @Test
+    void parsesMethodThisAccessAndConstructor() {
+        assertDoesNotThrow(() -> parse("""
+                class A {
+                    fun A() {
+                        this.value = 1;
+                    }
+                    fun get() {
+                        return this.value;
+                    }
+                }
+                """));
     }
 
     private static List<Stmt> parse(String source) {
