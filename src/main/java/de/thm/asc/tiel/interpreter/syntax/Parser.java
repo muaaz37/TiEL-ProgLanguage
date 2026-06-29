@@ -234,6 +234,7 @@ public class Parser {
 
         // Parse methods until the closing '}' of the class body is reached.
         while (!check(RIGHT_BRACE) && !isAtEnd()) {
+            match(FUN);  // Consume optional 'fun' keyword for compact class syntax
             methods.add((FunctionDeclStmt) function());
         }
 
@@ -242,9 +243,7 @@ public class Parser {
 
         // Build the AST node for this class
         return new ClassDeclStmt(
-                (String) name.value(),
-                methods
-        ).withPosition(position);
+                (String) name.value(), methods).withPosition(position);
     }
 
     /**
@@ -461,6 +460,7 @@ public class Parser {
         if (match(FALSE)) return new LiteralExpr(TiELValue.FALSE).withPosition(previous().position());
         if (match(TRUE)) return new LiteralExpr(TiELValue.TRUE).withPosition(previous().position());
         if (match(NIL)) return new LiteralExpr(TiELValue.NIL).withPosition(previous().position());
+        if (match(THIS)) return new ThisExpr().withPosition(previous().position());
 
         if (match(NUMBER)) {
             return new LiteralExpr(new TiELValue.TNumber((Double) previous().value()))
