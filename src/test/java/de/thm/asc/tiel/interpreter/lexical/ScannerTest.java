@@ -165,4 +165,65 @@ public class ScannerTest {
             assertEquals(expectedTypes.get(i), tokens.get(i).type(), "token index " + i);
         }
     }
+
+    @Test
+    void scansClassDeclarationTokens() {
+        var tokens = new Scanner("""
+                class Person {
+                    fun Person(name) {
+                        this.name = name;
+                    }
+                }
+                """).scan();
+
+        assertTokenTypes(tokens, List.of(
+                TokenType.CLASS,
+                TokenType.IDENTIFIER,
+                TokenType.LEFT_BRACE,
+                TokenType.FUN,
+                TokenType.IDENTIFIER,
+                TokenType.LEFT_PAREN,
+                TokenType.IDENTIFIER,
+                TokenType.RIGHT_PAREN,
+                TokenType.LEFT_BRACE,
+                TokenType.THIS,
+                TokenType.DOT,
+                TokenType.IDENTIFIER,
+                TokenType.EQUAL,
+                TokenType.IDENTIFIER,
+                TokenType.SEMICOLON,
+                TokenType.RIGHT_BRACE,
+                TokenType.RIGHT_BRACE,
+                TokenType.EOF
+        ));
+    }
+
+    @Test
+    void scansPropertyAccessTokens() {
+        var tokens = new Scanner("""
+                var p = Person("Alice");
+                print(p.name);
+                """).scan();
+
+        assertTokenTypes(tokens, List.of(
+                TokenType.VAR,
+                TokenType.IDENTIFIER,
+                TokenType.EQUAL,
+                TokenType.IDENTIFIER,
+                TokenType.LEFT_PAREN,
+                TokenType.STRING,
+                TokenType.RIGHT_PAREN,
+                TokenType.SEMICOLON,
+                TokenType.IDENTIFIER,
+                TokenType.LEFT_PAREN,
+                TokenType.IDENTIFIER,
+                TokenType.DOT,
+                TokenType.IDENTIFIER,
+                TokenType.RIGHT_PAREN,
+                TokenType.SEMICOLON,
+                TokenType.EOF
+        ));
+
+        assertEquals("Alice", tokens.get(5).value());
+    }
 }
