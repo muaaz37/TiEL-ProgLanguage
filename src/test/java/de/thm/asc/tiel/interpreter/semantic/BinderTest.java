@@ -70,7 +70,32 @@ public class BinderTest {
     }
 
 
-        private static void bind(String source) {
+        @Test
+    void acceptsThisInsideClass() {
+        assertDoesNotThrow(() -> bind("""
+                class C {
+                    fun C() {
+                        this.x = 1;
+                    }
+                    fun get() {
+                        return this.x;
+                    }
+                }
+                """) );
+    }
+
+    @Test
+    void rejectsThisOutsideClass() {
+        var error = assertThrows(RuntimeError.class, () -> bind("""
+                fun foo() {
+                    return this;
+                }
+                """));
+
+        assertEquals("Can't use 'this' outside of a class.", error.getMessage());
+    }
+
+    private static void bind(String source) {
         var ast = new Parser(new Scanner(source).scan()).parse();
         var evaluator = new Evaluator(Globals.initEnv(new java.io.PrintStream(new ByteArrayOutputStream())));
 
