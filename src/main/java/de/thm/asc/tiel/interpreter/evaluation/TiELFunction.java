@@ -29,6 +29,12 @@ class TiELFunction implements TiELCallable {
         this.isInitializer = isInitializer;
     }
 
+    TiELFunction bind(TiELInstance instance) {
+        var environment = new Environment(closure);
+        environment.define("this", instance);
+        return new TiELFunction(declaration, environment, isInitializer);
+    }
+
     /**
      * Returns the number of parameters the function accepts.
      *

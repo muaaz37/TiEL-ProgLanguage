@@ -69,6 +69,7 @@ public class Parser {
         if (match(LEFT_BRACE)) return block();
         if (match(VAR)) return varDeclaration();
         if (match(FUN)) return function();
+        if (match(CLASS)) return classDeclaration();
 
         return expressionStatement();
         //>>
@@ -214,6 +215,38 @@ public class Parser {
     }
 
     /**
+     * Parses a class declaration statement.
+     *
+     * @return The parsed class declaration statement.
+     */
+    private Stmt classDeclaration() {
+        // Save the position of the 'class' keyword for error reporting.
+        var position = previous().position();
+
+        // Read the class name after 'class'.
+        var name = consume(IDENTIFIER, "Expected class name");
+
+        // A class body must start with '{'.
+        consume(LEFT_BRACE, "Expected '{' before class body");
+
+        // Store all methods that are declared inside the class.
+        var methods = new ArrayList<FunctionDeclStmt>();
+
+        // Parse methods until the closing '}' of the class body is reached.
+        while (!check(RIGHT_BRACE) && !isAtEnd()) {
+            match(FUN);  // Consume optional 'fun' keyword for compact class syntax
+            methods.add((FunctionDeclStmt) function());
+        }
+
+        // A class body must end with '}'.
+        consume(RIGHT_BRACE, "Expected '}' after class body");
+
+        // Build the AST node for this class
+        return new ClassDeclStmt(
+                (String) name.value(), methods).withPosition(position);
+    }
+
+    /**
      * Parses an assignment statement.
      *
      * @return The parsed assignment statement.
@@ -225,11 +258,10 @@ public class Parser {
             var equals = previous();
             var value = assignment();
             // Left side can be a variable expr or IndexExpr like a[0] = ..
-            if (expr instanceof VariableExpr || expr instanceof IndexExpr) {
+            if (expr instanceof VariableExpr || expr instanceof IndexExpr || expr instanceof GetExpr) {
                 return new AssignExpr(expr, value).withPosition(expr.getPosition());
             }
-
-            throw new ParsingError("Expected variable or index expression left of =", equals.position());
+            throw new ParsingError("Expected variable, property, or index expression left of =", equals.position());
         }
 
         return expr;
@@ -408,6 +440,9 @@ public class Parser {
                 var index = expression();
                 consume(RIGHT_SQUARE_BRACKET, "Expected ']' after index expression");
                 expr = new IndexExpr(expr, index).withPosition(expr.getPosition());
+            } else if (match(DOT)) {
+                var name= consume(IDENTIFIER, "Expected property name after '.'");
+                expr = new GetExpr(expr, (String) name.value()).withPosition(expr.getPosition());
             } else {
                 break;
             }
@@ -425,6 +460,7 @@ public class Parser {
         if (match(FALSE)) return new LiteralExpr(TiELValue.FALSE).withPosition(previous().position());
         if (match(TRUE)) return new LiteralExpr(TiELValue.TRUE).withPosition(previous().position());
         if (match(NIL)) return new LiteralExpr(TiELValue.NIL).withPosition(previous().position());
+        if (match(THIS)) return new ThisExpr().withPosition(previous().position());
 
         if (match(NUMBER)) {
             return new LiteralExpr(new TiELValue.TNumber((Double) previous().value()))

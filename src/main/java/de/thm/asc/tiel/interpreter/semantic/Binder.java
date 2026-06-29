@@ -29,7 +29,29 @@ public class Binder {
         /**
          * Inside a regular function.
          */
-        FUNCTION
+        FUNCTION,
+        /**
+         * Inside a method.
+         */
+        METHOD,
+        /**
+         * Inside a class initializer.
+         */
+        INITIALIZER
+    }
+
+    /**
+     * Describes the class context currently being resolved.
+     */
+    private enum ClassType {
+        /**
+         * Not currently inside a class.
+         */
+        NONE,
+        /**
+         * Inside a class declaration.
+         */
+        CLASS
     }
     /**
      * Evaluator that receives resolved scope distances.
@@ -45,6 +67,11 @@ public class Binder {
      * Current enclosing function context.
      */
     private FunctionType currentFunction = FunctionType.NONE;
+
+    /**
+     * Current enclosing class context.
+     */
+    private ClassType currentClass = ClassType.NONE;
 
     /**
      * Creates a new binder for the given evaluator.
@@ -179,6 +206,35 @@ public class Binder {
     }
 
     /**
+     * Resolves a class declaration and prepares the `this` scope for all methods.
+     *
+     * @param stmt Class declaration.
+     */
+    private void resolveClassDeclStmt(ClassDeclStmt stmt) {
+        var enclosingClass = currentClass;
+        // From here on, `this` is allowed because we are inside a class.
+        currentClass = ClassType.CLASS;
+
+        // Register the class name in the current scope.
+        declare(stmt.name, stmt.getPosition());
+        define(stmt.name);
+
+        // Create a scope that contains `this` for all methods of this class.
+        beginScope();
+        scopes.peek().put("this", true);
+
+        for (var method : stmt.methods) {
+            // A method with the same name as the class is the initializer.
+            var type = method.name.equals(stmt.name) ? FunctionType.INITIALIZER : FunctionType.METHOD;
+            resolveFunction(method, type);
+        }
+
+        endScope();
+        // Restore the previous class context after leaving this class.
+        currentClass = enclosingClass;
+    }
+
+    /**
      * Resolves a function declaration.
      *
      * @param stmt function declaration.
@@ -202,6 +258,10 @@ public class Binder {
         }
 
         if (stmt.value != null) {
+            if (currentFunction == FunctionType.INITIALIZER) {
+                throw new RuntimeError("Can't return a value from an initializer.", stmt.getPosition());
+            }
+
             resolve(stmt.value);
         }
     }
@@ -235,6 +295,7 @@ public class Binder {
     private void resolve(Stmt stmt) {
         switch (stmt) {
             case BlockStmt blockStmt -> resolveBlockStmt(blockStmt);
+            case ClassDeclStmt classDeclStmt -> resolveClassDeclStmt(classDeclStmt);
             case ExpressionStmt expressionStmt -> resolveExpressionStmt(expressionStmt);
             case FunctionDeclStmt functionDeclStmt -> resolveFunctionDeclStmt(functionDeclStmt);
             case IfStmt ifStmt -> resolveIfStmt(ifStmt);
@@ -347,6 +408,30 @@ public class Binder {
     }
 
     /**
+     * Resolves the object part of a property access.
+     *
+     * @param expr Property access expression.
+     */
+    private void resolveGetExpr(GetExpr expr) {
+        resolve(expr.object);
+    }
+
+    /**
+     * Resolves `this` and checks that it is only used inside classes.
+     *
+     * @param expr This expression.
+     */
+    private void resolveThisExpr(ThisExpr expr) {
+        // `this` only exists inside class methods.
+        if (currentClass == ClassType.NONE) {
+            throw new RuntimeError("Can't use 'this' outside of a class.", expr.getPosition());
+        }
+
+        // Store the scope distance for looking up `this` at runtime.
+        resolveLocal(expr, "this");
+    }
+
+    /**
      * Dispatches expression resolution based on concrete expression type.
      *
      * @param expr Expression to resolve.
@@ -363,6 +448,8 @@ public class Binder {
             case VariableExpr variableExpr -> resolveVariableExpr(variableExpr);
             case ArrayLiteralExpr arrayLiteralExpr -> resolveArrayLiteralExpr(arrayLiteralExpr);
             case IndexExpr indexExpr -> resolveIndexExpr(indexExpr);
+            case GetExpr getExpr -> resolveGetExpr(getExpr);
+            case ThisExpr thisExpr -> resolveThisExpr(thisExpr);
         }
     }
 }

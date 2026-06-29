@@ -16,6 +16,7 @@ public enum TokenType {
     LEFT_SQUARE_BRACKET, // [
     RIGHT_SQUARE_BRACKET, // ]
     COMMA,          // ,
+    DOT,            // .
     PLUS,           // +
     MINUS,          // -
     //>>
@@ -32,7 +33,9 @@ public enum TokenType {
 
 
     // Keywords
+    CLASS,      // Class definition keyword
     FUN,        // Function definition keyword
+    THIS,       // Current instance reference keyword
     VAR,        // Variable declaration keyword
     IF,         // Conditional statement keyword
     ELSE,       // Begins an else block in conditional statements

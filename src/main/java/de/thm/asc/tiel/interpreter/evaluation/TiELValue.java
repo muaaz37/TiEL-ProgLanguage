@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 /**
  * Represents all runtime values in the interpreter.
  */
-public sealed interface TiELValue permits TiELCallable, TiELValue.TArray, TiELValue.TBoolean, TiELValue.TNil,
+public sealed interface TiELValue permits TiELCallable, TiELInstance, TiELValue.TArray, TiELValue.TBoolean, TiELValue.TNil,
         TiELValue.TNumber, TiELValue.TString {
 
     /**
